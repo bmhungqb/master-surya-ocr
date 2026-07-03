@@ -42,10 +42,9 @@ def process_single_pdf(pdf_path, output_dir, predictor):
     
     for page_num in range(total_pages):
         page = doc.load_page(page_num)
-        # Render trang PDF thành ảnh (scale 2x)
-        pix = page.get_pixmap(matrix=fitz.Matrix(2.0, 2.0))
-        img_data = pix.tobytes("rgb")
-        pil_img = Image.frombytes("RGB", [pix.width, pix.height], img_data)
+        # Render trang PDF thành ảnh RGB, không có kênh alpha (scale 2x)
+        pix = page.get_pixmap(matrix=fitz.Matrix(2.0, 2.0), colorspace=fitz.csRGB, alpha=False)
+        pil_img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
         print(f"  ⏳ Đang chạy OCR trang {page_num + 1}/{total_pages}...")
         
