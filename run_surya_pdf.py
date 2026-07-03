@@ -9,6 +9,9 @@ import fitz  # PyMuPDF
 from PIL import Image
 from dataclasses import dataclass, asdict
 
+# Ép Surya dùng llama.cpp thay vì Docker (vllm) do Kaggle/Colab không hỗ trợ Docker-in-Docker
+os.environ["SURYA_INFERENCE_BACKEND"] = "llamacpp"
+
 # Giữ nguyên cấu trúc dữ liệu OCRBox giống logic hiện tại
 @dataclass
 class OCRBox:
