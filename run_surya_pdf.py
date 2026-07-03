@@ -7,6 +7,8 @@ from pathlib import Path
 import fitz  # PyMuPDF
 from PIL import Image
 from dataclasses import dataclass, asdict
+import re
+import html
 
 # Giữ nguyên cấu trúc dữ liệu OCRBox giống logic hiện tại
 @dataclass
@@ -16,7 +18,7 @@ class OCRBox:
     confidence: float = 0.0
     page: int = 1
     column_order: int = -1
-    engine: str = 'Surya_v0.17'
+    engine: str = 'Surya_v0.20'
 
 def _to_native(o):
     if isinstance(o, np.integer): return int(o)
@@ -24,9 +26,7 @@ def _to_native(o):
     if isinstance(o, np.ndarray): return o.tolist()
     raise TypeError(str(type(o)))
 
-def process_single_pdf(pdf_path, output_dir, det_model, det_processor, rec_model, rec_processor):
-    from surya.ocr import run_ocr
-    
+def process_single_pdf(pdf_path, output_dir, rec_predictor):
     pdf_path = Path(pdf_path)
     if not pdf_path.exists():
         print(f"❌ Error: Không tìm thấy file {pdf_path}")
@@ -49,24 +49,33 @@ def process_single_pdf(pdf_path, output_dir, det_model, det_processor, rec_model
 
         print(f"  ⏳ Đang chạy OCR trang {page_num + 1}/{total_pages}...")
         
-        # Chạy dự đoán bằng Surya v0.17.x API
-        # [[]] là biến truyền ngôn ngữ trống để model tự đoán, bạn có thể thay bằng [['vi']] nếu cần
-        predictions = run_ocr([pil_img], [[]], det_model, det_processor, rec_model, rec_processor)
+        # Chạy dự đoán bằng Surya v0.20 API
+        predictions = rec_predictor([pil_img], full_page=True)
         
         boxes = []
         page_text_lines = []
         
+        page_result = predictions[0]
+        
         # Lấy từng dòng text và tọa độ từ kết quả
-        for text_line in predictions[0].text_lines:
-            text = text_line.text.strip()
+        for block in page_result.blocks:
+            # Bỏ qua nếu block bị đánh dấu skip hoặc error
+            if getattr(block, 'skipped', False) or getattr(block, 'error', False):
+                continue
+                
+            # Trích xuất text từ HTML
+            text = html.unescape(re.sub(r'<[^>]+>', '', getattr(block, 'html', ''))).strip()
             if not text:
                 continue
                 
+            conf = getattr(block, 'confidence', None)
+            
             box = OCRBox(
                 text=text,
-                bbox=text_line.bbox,
-                confidence=getattr(text_line, 'confidence', 0.9),
-                page=page_num + 1
+                bbox=block.bbox,
+                confidence=conf if conf is not None else 0.9,
+                page=page_num + 1,
+                column_order=getattr(block, 'reading_order', -1)
             )
             boxes.append(box)
             page_text_lines.append(text)
@@ -89,7 +98,7 @@ def process_single_pdf(pdf_path, output_dir, det_model, det_processor, rec_model
     print(f"✅ Hoàn thành sách {book_name}. Kết quả lưu tại: {book_out_dir}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Script chạy Surya OCR (phiên bản v0.17) cho hàng loạt file PDF")
+    parser = argparse.ArgumentParser(description="Script chạy Surya OCR (phiên bản v0.20) cho hàng loạt file PDF")
     parser.add_argument("input_path", type=str, help="Đường dẫn đến một file PDF hoặc THƯ MỤC chứa nhiều file PDF")
     parser.add_argument("--out", type=str, default="output", help="Thư mục lớn chứa kết quả OCR (mặc định: output)")
     args = parser.parse_args()
@@ -111,17 +120,16 @@ def main():
 
     print(f"📚 Đã tìm thấy {len(pdf_files)} file PDF cần xử lý.")
 
-    # Khởi tạo models PyTorch thuần túy (Không dùng Docker)
-    print(f"🚀 Khởi tạo models Surya OCR v0.17.x (PyTorch Native)...")
-    from surya.model.detection.segformer import load_model as load_det_model, load_processor as load_det_processor
-    from surya.model.recognition.model import load_model as load_rec_model
-    from surya.model.recognition.processor import load_processor as load_rec_processor
+    # Khởi tạo models PyTorch thuần túy (phiên bản 0.20 API)
+    print(f"🚀 Khởi tạo models Surya OCR v0.20.x...")
+    from surya.inference import SuryaInferenceManager
+    from surya.recognition import RecognitionPredictor
 
-    det_processor, det_model = load_det_processor(), load_det_model()
-    rec_model, rec_processor = load_rec_model(), load_rec_processor()
+    manager = SuryaInferenceManager()
+    rec_predictor = RecognitionPredictor(manager)
 
     for pdf in pdf_files:
-        process_single_pdf(pdf, args.out, det_model, det_processor, rec_model, rec_processor)
+        process_single_pdf(pdf, args.out, rec_predictor)
 
 if __name__ == "__main__":
     main()
