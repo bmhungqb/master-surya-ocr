@@ -26,6 +26,17 @@ def _to_native(o):
     if isinstance(o, np.ndarray): return o.tolist()
     raise TypeError(str(type(o)))
 
+def _page_output_paths(book_out_dir, page_num):
+    page_idx = page_num + 1
+    return (
+        book_out_dir / f"page_{page_idx:04d}.json",
+        book_out_dir / f"page_{page_idx:04d}.txt",
+    )
+
+def _page_outputs_exist(book_out_dir, page_num):
+    json_path, txt_path = _page_output_paths(book_out_dir, page_num)
+    return json_path.exists() and txt_path.exists()
+
 def process_single_pdf_v20(pdf_path, output_dir, rec_predictor):
     pdf_path = Path(pdf_path)
     if not pdf_path.exists():
@@ -39,8 +50,20 @@ def process_single_pdf_v20(pdf_path, output_dir, rec_predictor):
     print(f"\n📖 Đang xử lý sách: {pdf_path.name}")
     doc = fitz.open(pdf_path)
     total_pages = len(doc)
+    remaining_pages = [
+        page_num for page_num in range(total_pages)
+        if not _page_outputs_exist(book_out_dir, page_num)
+    ]
+    skipped_pages = total_pages - len(remaining_pages)
+
+    if skipped_pages:
+        print(f"  ⏭️  Bỏ qua {skipped_pages}/{total_pages} trang đã có output.")
+    if not remaining_pages:
+        print(f"✅ Bỏ qua sách {book_name}: tất cả trang đã có output tại {book_out_dir}")
+        doc.close()
+        return
     
-    for page_num in range(total_pages):
+    for page_num in remaining_pages:
         page = doc.load_page(page_num)
         
         pix = page.get_pixmap(matrix=fitz.Matrix(2.0, 2.0), colorspace=fitz.csRGB, alpha=False)
@@ -75,7 +98,7 @@ def process_single_pdf_v20(pdf_path, output_dir, rec_predictor):
             boxes.append(box)
             page_text_lines.append(text)
             
-        json_path = book_out_dir / f"page_{page_num + 1:04d}.json"
+        json_path, txt_path = _page_output_paths(book_out_dir, page_num)
         data = []
         for b in boxes:
             d = asdict(b)
@@ -85,10 +108,10 @@ def process_single_pdf_v20(pdf_path, output_dir, rec_predictor):
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2, default=_to_native)
             
-        txt_path = book_out_dir / f"page_{page_num + 1:04d}.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(page_text_lines))
             
+    doc.close()
     print(f"✅ Hoàn thành sách {book_name}. Kết quả lưu tại: {book_out_dir}")
 
 def process_single_pdf_v17(pdf_path, output_dir, rec_predictor, det_predictor, TaskNames):
@@ -104,8 +127,20 @@ def process_single_pdf_v17(pdf_path, output_dir, rec_predictor, det_predictor, T
     print(f"\n📖 Đang xử lý sách: {pdf_path.name}")
     doc = fitz.open(pdf_path)
     total_pages = len(doc)
+    remaining_pages = [
+        page_num for page_num in range(total_pages)
+        if not _page_outputs_exist(book_out_dir, page_num)
+    ]
+    skipped_pages = total_pages - len(remaining_pages)
+
+    if skipped_pages:
+        print(f"  ⏭️  Bỏ qua {skipped_pages}/{total_pages} trang đã có output.")
+    if not remaining_pages:
+        print(f"✅ Bỏ qua sách {book_name}: tất cả trang đã có output tại {book_out_dir}")
+        doc.close()
+        return
     
-    for page_num in range(total_pages):
+    for page_num in remaining_pages:
         page = doc.load_page(page_num)
         
         pix = page.get_pixmap(matrix=fitz.Matrix(2.0, 2.0), colorspace=fitz.csRGB, alpha=False)
@@ -138,7 +173,7 @@ def process_single_pdf_v17(pdf_path, output_dir, rec_predictor, det_predictor, T
             boxes.append(box)
             page_text_lines.append(text)
             
-        json_path = book_out_dir / f"page_{page_num + 1:04d}.json"
+        json_path, txt_path = _page_output_paths(book_out_dir, page_num)
         data = []
         for b in boxes:
             d = asdict(b)
@@ -148,10 +183,10 @@ def process_single_pdf_v17(pdf_path, output_dir, rec_predictor, det_predictor, T
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2, default=_to_native)
             
-        txt_path = book_out_dir / f"page_{page_num + 1:04d}.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(page_text_lines))
             
+    doc.close()
     print(f"✅ Hoàn thành sách {book_name}. Kết quả lưu tại: {book_out_dir}")
 
 def process_single_pdf_v16(pdf_path, output_dir, det_model, det_processor, rec_model, rec_processor, run_ocr):
@@ -167,8 +202,20 @@ def process_single_pdf_v16(pdf_path, output_dir, det_model, det_processor, rec_m
     print(f"\n📖 Đang xử lý sách: {pdf_path.name}")
     doc = fitz.open(pdf_path)
     total_pages = len(doc)
+    remaining_pages = [
+        page_num for page_num in range(total_pages)
+        if not _page_outputs_exist(book_out_dir, page_num)
+    ]
+    skipped_pages = total_pages - len(remaining_pages)
+
+    if skipped_pages:
+        print(f"  ⏭️  Bỏ qua {skipped_pages}/{total_pages} trang đã có output.")
+    if not remaining_pages:
+        print(f"✅ Bỏ qua sách {book_name}: tất cả trang đã có output tại {book_out_dir}")
+        doc.close()
+        return
     
-    for page_num in range(total_pages):
+    for page_num in remaining_pages:
         page = doc.load_page(page_num)
         
         pix = page.get_pixmap(matrix=fitz.Matrix(2.0, 2.0), colorspace=fitz.csRGB, alpha=False)
@@ -196,7 +243,7 @@ def process_single_pdf_v16(pdf_path, output_dir, det_model, det_processor, rec_m
             boxes.append(box)
             page_text_lines.append(text)
             
-        json_path = book_out_dir / f"page_{page_num + 1:04d}.json"
+        json_path, txt_path = _page_output_paths(book_out_dir, page_num)
         data = []
         for b in boxes:
             d = asdict(b)
@@ -206,10 +253,10 @@ def process_single_pdf_v16(pdf_path, output_dir, det_model, det_processor, rec_m
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2, default=_to_native)
             
-        txt_path = book_out_dir / f"page_{page_num + 1:04d}.txt"
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(page_text_lines))
             
+    doc.close()
     print(f"✅ Hoàn thành sách {book_name}. Kết quả lưu tại: {book_out_dir}")
 
 
