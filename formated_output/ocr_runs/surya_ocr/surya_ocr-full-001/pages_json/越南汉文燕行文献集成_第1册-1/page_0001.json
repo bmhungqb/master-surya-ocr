@@ -1,0 +1,15 @@
+[
+  {
+    "text": "福建大学出版社www.fudappress.com.cn",
+    "bbox": [
+      759.996,
+      1393.7040000000002,
+      1295.262,
+      1548.56
+    ],
+    "confidence": 0.8808516500095973,
+    "page": 1,
+    "column_order": 1,
+    "engine": "Surya_v0.20"
+  }
+]
