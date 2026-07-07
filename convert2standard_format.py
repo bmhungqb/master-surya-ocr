@@ -63,6 +63,27 @@ def write_manifest_row(manifest_file, row: dict) -> None:
     manifest_file.write("\n")
 
 
+def replace_text_key_with_data(value):
+    if isinstance(value, list):
+        return [replace_text_key_with_data(item) for item in value]
+    if isinstance(value, dict):
+        converted = {}
+        for key, item in value.items():
+            target_key = "data" if key == "text" else key
+            converted[target_key] = replace_text_key_with_data(item)
+        return converted
+    return value
+
+
+def write_standard_json(source_json: Path, dest_json: Path) -> None:
+    raw_json = json.loads(source_json.read_text(encoding="utf-8"))
+    standard_json = replace_text_key_with_data(raw_json)
+    dest_json.write_text(
+        json.dumps(standard_json, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def convert_book(
     book_dir: Path,
     run_dir: Path,
@@ -100,7 +121,7 @@ def convert_book(
 
             text = source_txt.read_text(encoding="utf-8")
             shutil.copy2(source_txt, dest_txt)
-            shutil.copy2(source_json, dest_json)
+            write_standard_json(source_json, dest_json)
 
             status = "ok" if text else "blank"
             if status == "ok":

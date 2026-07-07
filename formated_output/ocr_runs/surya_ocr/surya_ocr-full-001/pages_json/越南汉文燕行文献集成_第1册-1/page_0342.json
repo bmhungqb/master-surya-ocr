@@ -1,6 +1,6 @@
 [
   {
-    "text": "丁儒究 默翁使集",
+    "data": "丁儒究 默翁使集",
     "bbox": [
       22.86,
       452.986,
@@ -13,7 +13,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "12/29 year calendar 1915",
+    "data": "12/29 year calendar 1915",
     "bbox": [
       834.39,
       493.12399999999997,
@@ -26,7 +26,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "默翁使集引",
+    "data": "默翁使集引",
     "bbox": [
       1291.5900000000001,
       779.8240000000001,
@@ -39,7 +39,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "默翁姓丁字存樸。驪州之香山人也為人溫純雅重敏而",
+    "data": "默翁姓丁字存樸。驪州之香山人也為人溫純雅重敏而",
     "bbox": [
       1169.67,
       596.336,
@@ -52,7 +52,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "好學。於書無所不讀。而於諷詠尤為長焉。其詩審清音隱。",
+    "data": "好學。於書無所不讀。而於諷詠尤為長焉。其詩審清音隱。",
     "bbox": [
       1049.655,
       596.336,
@@ -65,7 +65,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "馬有李杜之風以灰辰科領遊士第奉差鎮高平累官至",
+    "data": "馬有李杜之風以灰辰科領遊士第奉差鎮高平累官至",
     "bbox": [
       935.355,
       596.336,
@@ -78,7 +78,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "尚寶寺卿已未年奉命往使北國凡祈經過一心自品題國",
+    "data": "尚寶寺卿已未年奉命往使北國凡祈經過一心自品題國",
     "bbox": [
       807.72,
       596.336,
@@ -91,7 +91,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "音唐律互相發明五言七言不一而足要其情詞感慨不",
+    "data": "音唐律互相發明五言七言不一而足要其情詞感慨不",
     "bbox": [
       678.18,
       596.336,
@@ -104,7 +104,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "外乎忠君孝親兩端而已。惜其燕京城外曷克終濟嗚呼。",
+    "data": "外乎忠君孝親兩端而已。惜其燕京城外曷克終濟嗚呼。",
     "bbox": [
       556.26,
       596.336,
@@ -117,7 +117,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "痛哉。以公之忠孝。宜者而父。宜壽而藏。而不能者是誰使",
+    "data": "痛哉。以公之忠孝。宜者而父。宜壽而藏。而不能者是誰使",
     "bbox": [
       432.435,
       596.336,
@@ -130,7 +130,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "The Common Sea Creek County of Maryland",
+    "data": "The Common Sea Creek County of Maryland",
     "bbox": [
       312.42,
       596.336,
@@ -143,7 +143,7 @@
     "engine": "Surya_v0.20"
   },
   {
-    "text": "<img alt=\"Diagram of the continuous curve for the function f(x) = x^2 - 2x + 1 on the x-axis. The curve is a concave curv",
+    "data": "<img alt=\"Diagram of the continuous curve for the function f(x) = x^2 - 2x + 1 on the x-axis. The curve is a concave curv",
     "bbox": [
       60.96,
       2371.009,
